@@ -25,6 +25,9 @@ BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(libtirpc)
 BuildRequires:	pkgconfig(augeas)
 BuildRequires:	pkgconfig(libselinux)
+BuildRequires:	pkgconfig(libacl)
+BuildRequires:	pkgconfig(libcap)
+BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemtap-devel
 BuildRequires:	ocaml
 BuildRequires:	vala-devel
