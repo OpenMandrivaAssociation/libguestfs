@@ -21,6 +21,7 @@ BuildRequires:	golang
 BuildRequires:	pkgconfig(lua)
 BuildRequires:	pkgconfig(ruby)
 BuildRequires:	pkgconfig(python3)
+BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	ocaml
 BuildRequires:	vala-devel
 BuildRequires:	gperf
