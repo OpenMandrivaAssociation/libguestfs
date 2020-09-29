@@ -22,6 +22,7 @@ BuildRequires:	pkgconfig(lua)
 BuildRequires:	pkgconfig(ruby)
 BuildRequires:	pkgconfig(python3)
 BuildRequires:	pkgconfig(ncurses)
+BuildRequires:	pkgconfig(libtirpc)
 BuildRequires:	ocaml
 BuildRequires:	vala-devel
 BuildRequires:	gperf
