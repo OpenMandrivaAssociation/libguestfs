@@ -32,6 +32,7 @@ BuildRequires:	gperf
 BuildRequires:	mkisofs
 BuildRequires:	flex
 BuildRequires:	bison
+BuildRequires:	supermin
 # For xmllint
 BuildRequires:	libxml2-utils
 
