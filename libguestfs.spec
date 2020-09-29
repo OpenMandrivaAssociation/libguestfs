@@ -23,6 +23,7 @@ BuildRequires:	pkgconfig(ruby)
 BuildRequires:	pkgconfig(python3)
 BuildRequires:	ocaml
 BuildRequires:	vala-devel
+BuildRequires:	gperf
 
 %description
 libguestfs is a set of tools for accessing and modifying virtual machine (VM)
