@@ -23,6 +23,9 @@ BuildRequires:	pkgconfig(ruby)
 BuildRequires:	pkgconfig(python3)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(libtirpc)
+BuildRequires:	pkgconfig(augeas)
+BuildRequires:	pkgconfig(libselinux)
+BuildRequires:	systemtap-devel
 BuildRequires:	ocaml
 BuildRequires:	vala-devel
 BuildRequires:	gperf
