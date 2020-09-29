@@ -25,6 +25,10 @@ BuildRequires:	ocaml
 BuildRequires:	vala-devel
 BuildRequires:	gperf
 BuildRequires:	mkisofs
+BuildRequires:	flex
+BuildRequires:	bison
+# For xmllint
+BuildRequires:	libxml2-utils
 
 %description
 libguestfs is a set of tools for accessing and modifying virtual machine (VM)
