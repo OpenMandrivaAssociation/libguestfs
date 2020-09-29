@@ -29,6 +29,7 @@ BuildRequires:	pkgconfig(libacl)
 BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemtap-devel
+BuildRequires:	qemu
 BuildRequires:	ocaml
 BuildRequires:	vala-devel
 BuildRequires:	gperf
@@ -125,10 +126,19 @@ Requires:	%{libname} = %{EVRD}
 %description -n vala-libguestfs
 Vala bindings for libguestfs
 
+%package guestfsd
+Summary:	GuestFS daemon
+Group:		Development/Tools
+Requires:	%{name} = %{EVRD}
+
+%description guestfsd
+GuestFS daemon
+
 %prep
 %autosetup -p1
 . %{_sysconfdir}/profile.d/90java.sh
-%configure
+%configure \
+	--enable-install-daemon
 
 %build
 %make_build
@@ -222,6 +232,11 @@ Vala bindings for libguestfs
 %{_datadir}/doc/libguestfs/virt-inspector.rng
 %{_mandir}/man1/*.1*
 %{_mandir}/man5/*.5*
+
+%files guestfsd
+/lib/udev/rules.d/99-guestfs-serial.rules
+%{_sbindir}/guestfsd
+%{_mandir}/man8/*.8*
 
 %libpackage guestfs 0
 
