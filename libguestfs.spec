@@ -20,7 +20,9 @@ BuildRequires:	jdk-current
 BuildRequires:	golang
 BuildRequires:	pkgconfig(lua)
 BuildRequires:	pkgconfig(ruby)
+BuildRequires:	ruby-hivex
 BuildRequires:	pkgconfig(python3)
+BuildRequires:	python-hivex
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(libtirpc)
 BuildRequires:	pkgconfig(augeas)
@@ -32,6 +34,7 @@ BuildRequires:	systemtap-devel
 BuildRequires:	qemu
 BuildRequires:	ocaml
 BuildRequires:	ocaml-findlib
+BuildRequires:	ocaml-hivex
 BuildRequires:	vala-devel
 BuildRequires:	gperf
 BuildRequires:	mkisofs
