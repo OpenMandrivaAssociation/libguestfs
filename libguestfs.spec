@@ -31,6 +31,7 @@ BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	systemtap-devel
 BuildRequires:	qemu
 BuildRequires:	ocaml
+BuildRequires:	ocaml-findlib
 BuildRequires:	vala-devel
 BuildRequires:	gperf
 BuildRequires:	mkisofs
