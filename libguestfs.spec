@@ -33,6 +33,7 @@ BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	pkgconfig(libconfig)
 BuildRequires:	pkgconfig(readline)
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
+BuildRequires:	pkgconfig(bash-completion)
 BuildRequires:	systemtap-devel
 BuildRequires:	qemu
 BuildRequires:	ocaml
