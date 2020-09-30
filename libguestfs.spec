@@ -30,6 +30,9 @@ BuildRequires:	pkgconfig(libselinux)
 BuildRequires:	pkgconfig(libacl)
 BuildRequires:	pkgconfig(libcap)
 BuildRequires:	pkgconfig(libsystemd)
+BuildRequires:	pkgconfig(libconfig)
+BuildRequires:	pkgconfig(readline)
+BuildRequires:	pkgconfig(gobject-introspection-1.0)
 BuildRequires:	systemtap-devel
 BuildRequires:	qemu
 BuildRequires:	ocaml
