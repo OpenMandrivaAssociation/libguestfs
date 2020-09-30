@@ -3,6 +3,10 @@
 %define devname %mklibname -d guestfs
 %define gdevname %mklibname -d guestfs-gobject-1.0
 
+# FIXME the Provides: generator for matching provides
+# seems to be broken
+%global __requires_exclude ^ocamlx.*$
+
 %global _disable_ld_no_undefined 1
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
