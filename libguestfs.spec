@@ -43,6 +43,9 @@ BuildRequires:	bison
 BuildRequires:	supermin
 # For xmllint
 BuildRequires:	libxml2-utils
+# For appliance creation
+BuildRequires:	dnf
+BuildRequires:	dnf-command(download)
 
 %description
 libguestfs is a set of tools for accessing and modifying virtual machine (VM)
