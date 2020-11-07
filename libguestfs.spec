@@ -289,9 +289,9 @@ GuestFS daemon
 %{_libdir}/ocaml/stublibs/dllmlguestfs.so.owner
 
 %files -n python-libguestfs
-%{_libdir}/python3.8/site-packages/__pycache__/guestfs.*.pyc
-%{_libdir}/python3.8/site-packages/guestfs.py
-%{_libdir}/python3.8/site-packages/libguestfsmod.*.so
+%{_libdir}/python3.9/site-packages/__pycache__/guestfs.*.pyc
+%{_libdir}/python3.9/site-packages/guestfs.py
+%{_libdir}/python3.9/site-packages/libguestfsmod.*.so
 
 %files -n ruby-libguestfs
 %{_datadir}/ruby/site_ruby/*/guestfs.rb
