@@ -16,6 +16,11 @@ Release:	3
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-development/libguestfs-%{version}.tar.gz
 Group:		System/Libraries
 License:	LGPLv2.1/GPLv2
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	pkgconfig(jansson) >= 2.7
 BuildRequires:	pkgconfig(libmagic)
 BuildRequires:	pkgconfig(libvirt)
