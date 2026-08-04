@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	11
+Release:	12
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -355,16 +355,10 @@ touch appliance/stamp-supermin
 %make_install
 %find_lang libguestfs --all-name --with-man
 : > guestfs-optional.files
-for f in \
-	%{_libdir}/guestfs/supermin.d/base.tar.gz \
-	%{_libdir}/guestfs/supermin.d/daemon.tar.gz \
-	%{_libdir}/guestfs/supermin.d/excludefiles \
-	%{_libdir}/guestfs/supermin.d/hostfiles \
-	%{_libdir}/guestfs/supermin.d/init.tar.gz \
-	%{_libdir}/guestfs/supermin.d/packages \
-	%{_libdir}/guestfs/supermin.d/udev-rules.tar.gz \
-	do
-	[ -e "%{buildroot}$f" ] && echo "$f" >> guestfs-optional.files
-done
-[ -d "%{buildroot}%{_libdir}/guestfs/supermin.d" ] && echo "%dir %{_libdir}/guestfs/supermin.d" >> guestfs-optional.files
-
+if [ -d %{buildroot}%{_libdir}/guestfs/supermin.d ]; then
+	echo "%dir %{_libdir}/guestfs/supermin.d" >> guestfs-optional.files
+	find %{buildroot}%{_libdir}/guestfs/supermin.d -type f | sed "s|%{buildroot}||" >> guestfs-optional.files
+fi
+if [ -e %{buildroot}%{_sbindir}/libguestfs-make-fixed-appliance ]; then
+	echo "%{_sbindir}/libguestfs-make-fixed-appliance" >> guestfs-optional.files
+fi
