@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	15
+Release:	16
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -80,46 +80,12 @@ rogue disk images.
 It can access disk images on remote machines or on CDs/USB sticks.
 It can access proprietary systems like VMware and Hyper-V.
 
-%files -f libguestfs.lang -f guestfs-extra.files
+%files -f libguestfs.lang -f guestfs-main-extra.files
 %config %{_sysconfdir}/libguestfs-tools.conf
-%config %{_sysconfdir}/virt-builder
-%dir %{_sysconfdir}/xdg/virt-builder
-%dir %{_sysconfdir}/xdg/virt-builder/repos.d
-%config %{_sysconfdir}/xdg/virt-builder/repos.d/libguestfs.conf
-%config %{_sysconfdir}/xdg/virt-builder/repos.d/libguestfs.gpg
-%config %{_sysconfdir}/xdg/virt-builder/repos.d/opensuse.conf
-%config %{_sysconfdir}/xdg/virt-builder/repos.d/opensuse.gpg
 %{_bindir}/guestfish
 %{_bindir}/guestmount
 %{_bindir}/guestunmount
 %{_bindir}/libguestfs-test-tool
-%{_bindir}/virt-alignment-scan
-%{_bindir}/virt-builder
-%{_bindir}/virt-builder-repository
-%{_bindir}/virt-cat
-%{_bindir}/virt-copy-in
-%{_bindir}/virt-copy-out
-%{_bindir}/virt-customize
-%{_bindir}/virt-df
-%{_bindir}/virt-dib
-%{_bindir}/virt-diff
-%{_bindir}/virt-edit
-%{_bindir}/virt-filesystems
-%{_bindir}/virt-format
-%{_bindir}/virt-get-kernel
-%{_bindir}/virt-index-validate
-%{_bindir}/virt-inspector
-%{_bindir}/virt-log
-%{_bindir}/virt-ls
-%{_bindir}/virt-make-fs
-%{_bindir}/virt-rescue
-%{_bindir}/virt-resize
-%{_bindir}/virt-sparsify
-%{_bindir}/virt-sysprep
-%{_bindir}/virt-tail
-%{_bindir}/virt-tar-in
-%{_bindir}/virt-tar-out
-%dir %{_libdir}/guestfs
 %{_mandir}/man1/*.1*
 %{_mandir}/man5/*.5*
 
@@ -322,15 +288,35 @@ touch appliance/stamp-supermin
 %find_lang libguestfs --all-name --with-man
 
 # Build dynamic file lists for optional paths that 1.48 may not install
-: > guestfs-extra.files
+# Dynamic lists: 1.48 layout differs; only package what was installed
+: > guestfs-main-extra.files
+# virt-* tools (may be absent if builder/tools not built)
+if [ -d %{buildroot}%{_bindir} ]; then
+	find %{buildroot}%{_bindir} -type f -name 'virt-*' | sed "s|%{buildroot}||" >> guestfs-main-extra.files
+fi
+# configs
+for f in %{_sysconfdir}/virt-builder %{_sysconfdir}/xdg/virt-builder; do
+	if [ -e "%{buildroot}$f" ]; then
+		find "%{buildroot}$f" | sed "s|%{buildroot}||" | while read pth; do
+			if [ -d "%{buildroot}$pth" ]; then echo "%dir $pth"; else echo "$pth"; fi
+		done >> guestfs-main-extra.files
+	fi
+done
+# guestfs appliance dir
+if [ -d %{buildroot}%{_libdir}/guestfs ]; then
+	echo "%dir %{_libdir}/guestfs" >> guestfs-main-extra.files
+	find %{buildroot}%{_libdir}/guestfs -type f | sed "s|%{buildroot}||" >> guestfs-main-extra.files
+fi
+# bash completion + docs
 if [ -d %{buildroot}%{_datadir}/bash-completion/completions ]; then
-	find %{buildroot}%{_datadir}/bash-completion/completions -type f | sed "s|%{buildroot}||" >> guestfs-extra.files
-	echo "%dir %{_datadir}/bash-completion/completions" >> guestfs-extra.files
+	echo "%dir %{_datadir}/bash-completion/completions" >> guestfs-main-extra.files
+	find %{buildroot}%{_datadir}/bash-completion/completions -type f | sed "s|%{buildroot}||" >> guestfs-main-extra.files
 fi
 if [ -d %{buildroot}%{_datadir}/doc/libguestfs ]; then
-	find %{buildroot}%{_datadir}/doc/libguestfs -type f | sed "s|%{buildroot}||" >> guestfs-extra.files
+	find %{buildroot}%{_datadir}/doc/libguestfs -type f | sed "s|%{buildroot}||" >> guestfs-main-extra.files
 fi
-# Ensure non-empty for -f (RPM rejects empty)
-if [ ! -s guestfs-extra.files ]; then
-	echo "%dir %{_datadir}" >> guestfs-extra.files
+if [ ! -s guestfs-main-extra.files ]; then
+	echo "%dir %{_datadir}" >> guestfs-main-extra.files
 fi
+sort -u -o guestfs-main-extra.files guestfs-main-extra.files
+
