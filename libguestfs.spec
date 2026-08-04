@@ -126,7 +126,6 @@ GObject bindings to libguestfs
 #---------------------------------------------------------------------------
 
 %if 0
-%if 0
 %package -n go-libguestfs
 Summary:	Go bindings for libguestfs
 Group:		Development/Go
@@ -136,7 +135,6 @@ Requires:	%{libname} = %{EVRD}
 Go bindings for libguestfs
 
 %files -n go-libguestfs
-%endif
 %endif
 
 #---------------------------------------------------------------------------
