@@ -288,7 +288,6 @@ Ruby bindings for libguestfs
 
 #---------------------------------------------------------------------------
 
-%endif
 %package -n vala-libguestfs
 Summary:	Vala bindings for libguestfs
 Group:		Development/Vala
