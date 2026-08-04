@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.41.8
-Release:	4
+Release:	5
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-development/libguestfs-%{version}.tar.gz
 Group:		System/Libraries
 License:	LGPLv2.1/GPLv2
@@ -30,7 +30,6 @@ BuildRequires:	jdk-current
 BuildRequires:	golang
 BuildRequires:	pkgconfig(lua)
 BuildRequires:	pkgconfig(ruby)
-BuildRequires:	ruby-hivex
 BuildRequires:	pkgconfig(python3)
 BuildRequires:	python-hivex
 BuildRequires:	pkgconfig(ncurses)
@@ -50,6 +49,7 @@ BuildRequires:	qemu
 BuildRequires:	qemu-img
 BuildRequires:	qemu-kvm
 BuildRequires:	ocaml
+BuildRequires:	ocaml-compiler
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-hivex
 BuildRequires:	vala-devel
