@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	18
+Release:	19
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -162,8 +162,7 @@ Requires:	%{libname} = %{EVRD}
 %description -n lua-libguestfs
 Lua bindings for libguestfs
 
-%files -n lua-libguestfs
-%{_libdir}/lua/5.3/guestfs.so
+%files -n lua-libguestfs -f lua-libguestfs.files
 
 #---------------------------------------------------------------------------
 
@@ -287,6 +286,15 @@ touch appliance/stamp-supermin
 %install
 %make_install
 %find_lang libguestfs --all-name --with-man
+
+# lua path varies by version
+: > lua-libguestfs.files
+find %{buildroot}%{_libdir}/lua -name 'guestfs.so' 2>/dev/null | sed "s|%{buildroot}||" >> lua-libguestfs.files || :
+find %{buildroot}%{_datadir}/lua -name 'guestfs.lua' 2>/dev/null | sed "s|%{buildroot}||" >> lua-libguestfs.files || :
+if [ ! -s lua-libguestfs.files ]; then
+	# no lua bindings built
+	echo "%dir %{_datadir}" > lua-libguestfs.files
+fi
 
 # Build dynamic file lists for optional paths that 1.48 may not install
 # Dynamic lists: 1.48 layout differs; only package what was installed
