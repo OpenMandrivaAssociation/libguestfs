@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	5
+Release:	6
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -341,6 +341,19 @@ if [ ! -f build-aux/missing ]; then
 	chmod +x build-aux/missing
 fi
 export LIBTOOL=%{_bindir}/libtool
+export LIBRARY_PATH=%{_libdir}/ocaml${LIBRARY_PATH:+:$LIBRARY_PATH}
+export LDFLAGS="-L%{_libdir}/ocaml $LDFLAGS"
+
+# OCaml 5.5: C libraries renamed (libcamlstr -> libcamlstrnat, libunix -> libunixnat)
+find . -type f \( -name 'Makefile' -o -name 'Makefile.in' -o -name 'config.status' \) -print0 | \
+	xargs -0 -r perl -i -pe '
+		s/(?<![\w])-lcamlstr(?![\w])/-lcamlstrnat/g;
+		s/(?<![\w])-lunix(?![\w])/-lunixnat/g;
+		s/libcamlstr\.a/libcamlstrnat.a/g;
+		s/libunix\.a/libunixnat.a/g;
+	'
+
+
 %make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
 
 %install
