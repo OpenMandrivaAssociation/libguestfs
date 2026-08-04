@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	6
+Release:	7
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -354,7 +354,15 @@ find . -type f \( -name 'Makefile' -o -name 'Makefile.in' -o -name 'config.statu
 	'
 
 
+# Appliance needs supermin+dnf download inside mock; dnf5 breaks supermin here.
+# Build everything except appliance so OCaml bindings and libs still ship.
+if [ -f Makefile ]; then
+	sed -i -E 's/([ \t])appliance([ \t]|$)/\1\2/g' Makefile || :
+fi
 %make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
+# Placeholder so recursive install does not fail if something expects appliance
+mkdir -p appliance
+touch appliance/stamp-supermin 2>/dev/null || :
 
 %install
 %make_install
