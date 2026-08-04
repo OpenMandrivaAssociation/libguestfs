@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	1
+Release:	2
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -320,6 +320,8 @@ GuestFS daemon
 
 %prep
 %autosetup -p1
+# OCaml 5: Pervasives removed
+find . -name '*.ml' -o -name '*.mli' | xargs -r sed -i 's/Pervasives\./Stdlib./g'
 . %{_sysconfdir}/profile.d/90java.sh
 %configure \
 	--enable-install-daemon
