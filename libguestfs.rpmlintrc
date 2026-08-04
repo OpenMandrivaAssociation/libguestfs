@@ -1,0 +1,6 @@
+addFilter("lib-package-without-%mklibname")
+addFilter("invalid-license")
+addFilter("non-coherent-filename")
+addFilter("rpm-buildroot-usage")
+addFilter("no-%check-section")
+addFilter("specfile-warning")

@@ -11,9 +11,10 @@
 
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
-Version:	1.41.8
-Release:	5
-Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-development/libguestfs-%{version}.tar.gz
+Version:	1.48.1
+Release:	1
+Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
+Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
 License:	LGPLv2.1/GPLv2
 BuildRequires:	autoconf
