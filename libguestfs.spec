@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	12
+Release:	13
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -80,7 +80,7 @@ rogue disk images.
 It can access disk images on remote machines or on CDs/USB sticks.
 It can access proprietary systems like VMware and Hyper-V.
 
-%files -f libguestfs.lang -f guestfs-optional.files
+%files -f libguestfs.lang
 %config %{_sysconfdir}/libguestfs-tools.conf
 %config %{_sysconfdir}/virt-builder
 %dir %{_sysconfdir}/xdg/virt-builder
@@ -354,11 +354,3 @@ touch appliance/stamp-supermin
 %install
 %make_install
 %find_lang libguestfs --all-name --with-man
-: > guestfs-optional.files
-if [ -d %{buildroot}%{_libdir}/guestfs/supermin.d ]; then
-	echo "%dir %{_libdir}/guestfs/supermin.d" >> guestfs-optional.files
-	find %{buildroot}%{_libdir}/guestfs/supermin.d -type f | sed "s|%{buildroot}||" >> guestfs-optional.files
-fi
-if [ -e %{buildroot}%{_sbindir}/libguestfs-make-fixed-appliance ]; then
-	echo "%{_sbindir}/libguestfs-make-fixed-appliance" >> guestfs-optional.files
-fi
