@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	3
+Release:	4
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -20,6 +20,7 @@ License:	LGPLv2.1/GPLv2
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool-base
+BuildRequires:	libtool
 BuildRequires:	slibtool
 BuildRequires:	make
 BuildRequires:	pkgconfig(jansson) >= 2.7
@@ -329,7 +330,20 @@ find . \( -name '*.ml' -o -name '*.mli' \) | xargs -r sed -i 's/Pervasives\./Std
 %build
 export AR=%{_bindir}/ar
 export RANLIB=%{_bindir}/ranlib
-%make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib
+# OMV macros may leave only slibtool; gnulib scripts expect classic libtool
+if [ ! -x libtool ] || ! ./libtool --help 2>/dev/null | head -1 | grep -qi libtool; then
+	# Generate a classic libtool if missing
+	libtoolize --force --copy 2>/dev/null || true
+	if [ ! -f libtool ]; then
+		ln -sf %{_bindir}/libtool libtool || ln -sf %{_bindir}/slibtool libtool
+	fi
+fi
+# Ensure subdirs can find libtool
+find . -name 'libtool-kill-dependency_libs.sh' -exec \
+	sed -i 's|\$\[.*\]||g' {} \; 2>/dev/null || true
+# Point kill-dependency script at real libtool
+export LIBTOOL=%{_bindir}/libtool
+%make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
 
 %install
 %make_install
