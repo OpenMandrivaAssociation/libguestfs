@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	8
+Release:	9
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -31,7 +31,7 @@ BuildRequires:	pkgconfig(hivex)
 BuildRequires:	jdk-current
 BuildRequires:	golang
 BuildRequires:	pkgconfig(lua)
-BuildRequires:	pkgconfig(ruby)
+# BuildRequires:	pkgconfig(ruby)  # disabled for OCaml rebuild
 BuildRequires:	pkgconfig(python3)
 BuildRequires:	python-hivex
 BuildRequires:	pkgconfig(ncurses)
@@ -274,6 +274,7 @@ Python bindings for libguestfs
 
 #---------------------------------------------------------------------------
 
+%if 0
 %package -n ruby-libguestfs
 Summary:	Ruby bindings for libguestfs
 Group:		Development/Ruby
@@ -283,11 +284,11 @@ Requires:	%{libname} = %{EVRD}
 Ruby bindings for libguestfs
 
 %files -n ruby-libguestfs
-%{_datadir}/ruby/site_ruby/*/guestfs.rb
-%{_libdir}/ruby/site_ruby/_guestfs.so
+%endif
 
 #---------------------------------------------------------------------------
 
+%endif
 %package -n vala-libguestfs
 Summary:	Vala bindings for libguestfs
 Group:		Development/Vala
@@ -325,7 +326,8 @@ GuestFS daemon
 find . \( -name '*.ml' -o -name '*.mli' \) | xargs -r sed -i 's/Pervasives\./Stdlib./g'
 . %{_sysconfdir}/profile.d/90java.sh
 %configure \
-	--enable-install-daemon
+	--enable-install-daemon \
+--disable-ruby
 
 %build
 export AR=%{_bindir}/ar
