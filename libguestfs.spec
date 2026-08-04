@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	17
+Release:	18
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -126,6 +126,7 @@ GObject bindings to libguestfs
 #---------------------------------------------------------------------------
 
 %if 0
+%if 0
 %package -n go-libguestfs
 Summary:	Go bindings for libguestfs
 Group:		Development/Go
@@ -135,8 +136,7 @@ Requires:	%{libname} = %{EVRD}
 Go bindings for libguestfs
 
 %files -n go-libguestfs
-%{_prefix}/lib/golang/pkg/*/libguestfs.org/guestfs
-%{_prefix}/lib/golang/src/pkg/libguestfs.org/guestfs
+%endif
 %endif
 
 #---------------------------------------------------------------------------
