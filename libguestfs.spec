@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	16
+Release:	17
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -29,7 +29,7 @@ BuildRequires:	pkgconfig(libvirt)
 BuildRequires:	pkgconfig(fuse)
 BuildRequires:	pkgconfig(hivex)
 BuildRequires:	jdk-current
-BuildRequires:	golang
+# BuildRequires:	golang
 BuildRequires:	pkgconfig(lua)
 # BuildRequires:	pkgconfig(ruby)  # disabled for OCaml rebuild
 BuildRequires:	pkgconfig(python3)
@@ -125,6 +125,7 @@ GObject bindings to libguestfs
 
 #---------------------------------------------------------------------------
 
+%if 0
 %package -n go-libguestfs
 Summary:	Go bindings for libguestfs
 Group:		Development/Go
@@ -136,6 +137,7 @@ Go bindings for libguestfs
 %files -n go-libguestfs
 %{_prefix}/lib/golang/pkg/*/libguestfs.org/guestfs
 %{_prefix}/lib/golang/src/pkg/libguestfs.org/guestfs
+%endif
 
 #---------------------------------------------------------------------------
 
@@ -249,7 +251,8 @@ find . \( -name '*.ml' -o -name '*.mli' \) | xargs -r sed -i 's/Pervasives\./Std
 . %{_sysconfdir}/profile.d/90java.sh
 %configure \
 	--enable-install-daemon \
---disable-ruby
+--disable-ruby \
+--disable-golang
 
 %build
 export AR=%{_bindir}/ar
