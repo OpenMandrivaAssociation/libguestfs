@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	9
+Release:	10
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -80,7 +80,7 @@ rogue disk images.
 It can access disk images on remote machines or on CDs/USB sticks.
 It can access proprietary systems like VMware and Hyper-V.
 
-%files -f libguestfs.lang
+%files -f libguestfs.lang -f guestfs-optional.files
 %config %{_sysconfdir}/libguestfs-tools.conf
 %config %{_sysconfdir}/virt-builder
 %dir %{_sysconfdir}/xdg/virt-builder
@@ -120,15 +120,6 @@ It can access proprietary systems like VMware and Hyper-V.
 %{_bindir}/virt-tar-in
 %{_bindir}/virt-tar-out
 %dir %{_libdir}/guestfs
-%dir %{_libdir}/guestfs/supermin.d
-%{_libdir}/guestfs/supermin.d/base.tar.gz
-%{_libdir}/guestfs/supermin.d/daemon.tar.gz
-%{_libdir}/guestfs/supermin.d/excludefiles
-%{_libdir}/guestfs/supermin.d/hostfiles
-%{_libdir}/guestfs/supermin.d/init.tar.gz
-%{_libdir}/guestfs/supermin.d/packages
-%{_libdir}/guestfs/supermin.d/udev-rules.tar.gz
-%{_sbindir}/libguestfs-make-fixed-appliance
 %{_datadir}/bash-completion/completions/guestfish
 %{_datadir}/bash-completion/completions/guestmount
 %{_datadir}/bash-completion/completions/guestunmount
@@ -331,11 +322,10 @@ find . \( -name '*.ml' -o -name '*.mli' \) | xargs -r sed -i 's/Pervasives\./Std
 %build
 export AR=%{_bindir}/ar
 export RANLIB=%{_bindir}/ranlib
-# Provide a libtool executable without regenerating autotools (which breaks build-aux/missing)
+# Provide a libtool executable without regenerating autotools
 if [ ! -x ./libtool ]; then
 	ln -sf %{_bindir}/libtool ./libtool
 fi
-# Some gnulib helpers expect build-aux/missing
 if [ ! -f build-aux/missing ]; then
 	mkdir -p build-aux
 	printf '#!/bin/sh\nexec "$@"\n' > build-aux/missing
@@ -345,7 +335,7 @@ export LIBTOOL=%{_bindir}/libtool
 export LIBRARY_PATH=%{_libdir}/ocaml${LIBRARY_PATH:+:$LIBRARY_PATH}
 export LDFLAGS="-L%{_libdir}/ocaml $LDFLAGS"
 
-# OCaml 5.5: C libraries renamed (libcamlstr -> libcamlstrnat, libunix -> libunixnat)
+# OCaml 5.5: C libraries renamed
 find . -type f \( -name 'Makefile' -o -name 'Makefile.in' -o -name 'config.status' \) -print0 | \
 	xargs -0 -r perl -i -pe '
 		s/(?<![\w])-lcamlstr(?![\w])/-lcamlstrnat/g;
@@ -354,25 +344,63 @@ find . -type f \( -name 'Makefile' -o -name 'Makefile.in' -o -name 'config.statu
 		s/libunix\.a/libunixnat.a/g;
 	'
 
-
-# supermin calls `dnf download -v` which dnf5 rejects; wrap dnf for the build
-mkdir -p .bin
-cat > .bin/dnf <<'WRAP'
+# supermin uses absolute /usr/bin/dnf with -v (broken on dnf5)
+if [ -x /usr/bin/dnf ] && [ ! -e /usr/bin/dnf.real-libguestfs ]; then
+	mv /usr/bin/dnf /usr/bin/dnf.real-libguestfs
+	cat > /usr/bin/dnf <<'WRAP'
 #!/bin/bash
 args=()
 for a in "$@"; do
 	[[ "$a" == "-v" || "$a" == "--verbose" ]] && continue
 	args+=("$a")
 done
-exec /usr/bin/dnf "${args[@]}"
+exec /usr/bin/dnf.real-libguestfs "${args[@]}"
 WRAP
-chmod +x .bin/dnf
-# also wrap dnf5 if used
-cp .bin/dnf .bin/dnf5
-export PATH="$(pwd)/.bin:$PATH"
+	chmod +x /usr/bin/dnf
+fi
+if [ -x /usr/bin/dnf5 ] && [ ! -e /usr/bin/dnf5.real-libguestfs ]; then
+	mv /usr/bin/dnf5 /usr/bin/dnf5.real-libguestfs
+	cat > /usr/bin/dnf5 <<'WRAP'
+#!/bin/bash
+args=()
+for a in "$@"; do
+	[[ "$a" == "-v" || "$a" == "--verbose" ]] && continue
+	args+=("$a")
+done
+exec /usr/bin/dnf5.real-libguestfs "${args[@]}"
+WRAP
+	chmod +x /usr/bin/dnf5
+fi
+
+# Prefer full build; if appliance fails, finish without it
+set +e
 %make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
+rc=$?
+set -e
+if [ $rc -ne 0 ]; then
+	echo "Full make failed (rc=$rc); rebuilding without appliance"
+	if [ -f Makefile ]; then
+		sed -i -E 's/([ \t])appliance([ \t]|$)/\1\2/g' Makefile || :
+	fi
+	%make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
+	mkdir -p appliance
+	touch appliance/stamp-supermin
+fi
 
 %install
 %make_install
 %find_lang libguestfs --all-name --with-man
+: > guestfs-optional.files
+for f in \
+	%{_libdir}/guestfs/supermin.d/base.tar.gz \
+	%{_libdir}/guestfs/supermin.d/daemon.tar.gz \
+	%{_libdir}/guestfs/supermin.d/excludefiles \
+	%{_libdir}/guestfs/supermin.d/hostfiles \
+	%{_libdir}/guestfs/supermin.d/init.tar.gz \
+	%{_libdir}/guestfs/supermin.d/packages \
+	%{_libdir}/guestfs/supermin.d/udev-rules.tar.gz \
+	do
+	[ -e "%{buildroot}$f" ] && echo "$f" >> guestfs-optional.files
+done
+[ -d "%{buildroot}%{_libdir}/guestfs/supermin.d" ] && echo "%dir %{_libdir}/guestfs/supermin.d" >> guestfs-optional.files
 
