@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	10
+Release:	11
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -322,7 +322,6 @@ find . \( -name '*.ml' -o -name '*.mli' \) | xargs -r sed -i 's/Pervasives\./Std
 %build
 export AR=%{_bindir}/ar
 export RANLIB=%{_bindir}/ranlib
-# Provide a libtool executable without regenerating autotools
 if [ ! -x ./libtool ]; then
 	ln -sf %{_bindir}/libtool ./libtool
 fi
@@ -335,7 +334,7 @@ export LIBTOOL=%{_bindir}/libtool
 export LIBRARY_PATH=%{_libdir}/ocaml${LIBRARY_PATH:+:$LIBRARY_PATH}
 export LDFLAGS="-L%{_libdir}/ocaml $LDFLAGS"
 
-# OCaml 5.5: C libraries renamed
+# OCaml 5.5 C library names
 find . -type f \( -name 'Makefile' -o -name 'Makefile.in' -o -name 'config.status' \) -print0 | \
 	xargs -0 -r perl -i -pe '
 		s/(?<![\w])-lcamlstr(?![\w])/-lcamlstrnat/g;
@@ -344,48 +343,13 @@ find . -type f \( -name 'Makefile' -o -name 'Makefile.in' -o -name 'config.statu
 		s/libunix\.a/libunixnat.a/g;
 	'
 
-# supermin uses absolute /usr/bin/dnf with -v (broken on dnf5)
-if [ -x /usr/bin/dnf ] && [ ! -e /usr/bin/dnf.real-libguestfs ]; then
-	mv /usr/bin/dnf /usr/bin/dnf.real-libguestfs
-	cat > /usr/bin/dnf <<'WRAP'
-#!/bin/bash
-args=()
-for a in "$@"; do
-	[[ "$a" == "-v" || "$a" == "--verbose" ]] && continue
-	args+=("$a")
-done
-exec /usr/bin/dnf.real-libguestfs "${args[@]}"
-WRAP
-	chmod +x /usr/bin/dnf
+# Skip appliance: supermin+dnf5 cannot run in mock (absolute dnf path, -v flag)
+if [ -f Makefile ]; then
+	sed -i -E 's/([ \t])appliance([ \t]|$)/\1\2/g' Makefile || :
 fi
-if [ -x /usr/bin/dnf5 ] && [ ! -e /usr/bin/dnf5.real-libguestfs ]; then
-	mv /usr/bin/dnf5 /usr/bin/dnf5.real-libguestfs
-	cat > /usr/bin/dnf5 <<'WRAP'
-#!/bin/bash
-args=()
-for a in "$@"; do
-	[[ "$a" == "-v" || "$a" == "--verbose" ]] && continue
-	args+=("$a")
-done
-exec /usr/bin/dnf5.real-libguestfs "${args[@]}"
-WRAP
-	chmod +x /usr/bin/dnf5
-fi
-
-# Prefer full build; if appliance fails, finish without it
-set +e
 %make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
-rc=$?
-set -e
-if [ $rc -ne 0 ]; then
-	echo "Full make failed (rc=$rc); rebuilding without appliance"
-	if [ -f Makefile ]; then
-		sed -i -E 's/([ \t])appliance([ \t]|$)/\1\2/g' Makefile || :
-	fi
-	%make_build AR=%{_bindir}/ar RANLIB=%{_bindir}/ranlib LIBTOOL=%{_bindir}/libtool
-	mkdir -p appliance
-	touch appliance/stamp-supermin
-fi
+mkdir -p appliance
+touch appliance/stamp-supermin
 
 %install
 %make_install
