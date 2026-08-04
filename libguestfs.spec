@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	13
+Release:	14
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -80,7 +80,7 @@ rogue disk images.
 It can access disk images on remote machines or on CDs/USB sticks.
 It can access proprietary systems like VMware and Hyper-V.
 
-%files -f libguestfs.lang
+%files -f libguestfs.lang -f guestfs-extra.files
 %config %{_sysconfdir}/libguestfs-tools.conf
 %config %{_sysconfdir}/virt-builder
 %dir %{_sysconfdir}/xdg/virt-builder
@@ -124,36 +124,6 @@ It can access proprietary systems like VMware and Hyper-V.
 %{_datadir}/bash-completion/completions/guestmount
 %{_datadir}/bash-completion/completions/guestunmount
 %{_datadir}/bash-completion/completions/libguestfs-test-tool
-%{_datadir}/bash-completion/completions/virt-alignment-scan
-%{_datadir}/bash-completion/completions/virt-builder
-%{_datadir}/bash-completion/completions/virt-cat
-%{_datadir}/bash-completion/completions/virt-copy-in
-%{_datadir}/bash-completion/completions/virt-copy-out
-%{_datadir}/bash-completion/completions/virt-customize
-%{_datadir}/bash-completion/completions/virt-df
-%{_datadir}/bash-completion/completions/virt-dib
-%{_datadir}/bash-completion/completions/virt-diff
-%{_datadir}/bash-completion/completions/virt-edit
-%{_datadir}/bash-completion/completions/virt-filesystems
-%{_datadir}/bash-completion/completions/virt-format
-%{_datadir}/bash-completion/completions/virt-get-kernel
-%{_datadir}/bash-completion/completions/virt-inspector
-%{_datadir}/bash-completion/completions/virt-log
-%{_datadir}/bash-completion/completions/virt-ls
-%{_datadir}/bash-completion/completions/virt-rescue
-%{_datadir}/bash-completion/completions/virt-resize
-%{_datadir}/bash-completion/completions/virt-sparsify
-%{_datadir}/bash-completion/completions/virt-sysprep
-%{_datadir}/bash-completion/completions/virt-tail
-%{_datadir}/bash-completion/completions/virt-tar-in
-%{_datadir}/bash-completion/completions/virt-tar-out
-%{_datadir}/bash-completion/completions/virt-win-reg
-%{_datadir}/doc/libguestfs/example-debian.xml
-%{_datadir}/doc/libguestfs/example-fedora.xml
-%{_datadir}/doc/libguestfs/example-rhel-6.xml
-%{_datadir}/doc/libguestfs/example-ubuntu.xml
-%{_datadir}/doc/libguestfs/example-windows.xml
-%{_datadir}/doc/libguestfs/virt-inspector.rng
 %{_mandir}/man1/*.1*
 %{_mandir}/man5/*.5*
 
@@ -354,3 +324,17 @@ touch appliance/stamp-supermin
 %install
 %make_install
 %find_lang libguestfs --all-name --with-man
+
+# Build dynamic file lists for optional paths that 1.48 may not install
+: > guestfs-extra.files
+if [ -d %{buildroot}%{_datadir}/bash-completion/completions ]; then
+	find %{buildroot}%{_datadir}/bash-completion/completions -type f | sed "s|%{buildroot}||" >> guestfs-extra.files
+	echo "%dir %{_datadir}/bash-completion/completions" >> guestfs-extra.files
+fi
+if [ -d %{buildroot}%{_datadir}/doc/libguestfs ]; then
+	find %{buildroot}%{_datadir}/doc/libguestfs -type f | sed "s|%{buildroot}||" >> guestfs-extra.files
+fi
+# Ensure non-empty for -f (RPM rejects empty)
+if [ ! -s guestfs-extra.files ]; then
+	echo "%dir %{_datadir}" >> guestfs-extra.files
+fi
