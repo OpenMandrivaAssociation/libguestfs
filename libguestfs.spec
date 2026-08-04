@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	14
+Release:	15
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -120,10 +120,6 @@ It can access proprietary systems like VMware and Hyper-V.
 %{_bindir}/virt-tar-in
 %{_bindir}/virt-tar-out
 %dir %{_libdir}/guestfs
-%{_datadir}/bash-completion/completions/guestfish
-%{_datadir}/bash-completion/completions/guestmount
-%{_datadir}/bash-completion/completions/guestunmount
-%{_datadir}/bash-completion/completions/libguestfs-test-tool
 %{_mandir}/man1/*.1*
 %{_mandir}/man5/*.5*
 
