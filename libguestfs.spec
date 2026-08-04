@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	21
+Release:	22
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -229,10 +229,8 @@ Requires:	%{name} = %{EVRD}
 %description guestfsd
 GuestFS daemon
 
-%files guestfsd
-/lib/udev/rules.d/99-guestfs-serial.rules
-%{_sbindir}/guestfsd
-%{_mandir}/man8/*.8*
+%files guestfsd -f guestfsd.files
+
 %libpackage guestfs 0
 %libpackage guestfs-gobject-1.0 0
 
@@ -283,6 +281,20 @@ touch appliance/stamp-supermin
 %install
 %make_install
 %find_lang libguestfs --all-name --with-man
+
+: > guestfsd.files
+if [ -e %{buildroot}%{_sbindir}/guestfsd ]; then
+	echo "%{_sbindir}/guestfsd" >> guestfsd.files
+fi
+if [ -e %{buildroot}/lib/udev/rules.d/99-guestfs-serial.rules ]; then
+	echo "/lib/udev/rules.d/99-guestfs-serial.rules" >> guestfsd.files
+fi
+if [ -e %{buildroot}%{_prefix}/lib/udev/rules.d/99-guestfs-serial.rules ]; then
+	echo "%{_prefix}/lib/udev/rules.d/99-guestfs-serial.rules" >> guestfsd.files
+fi
+if [ ! -s guestfsd.files ]; then
+	echo "%dir %{_datadir}" > guestfsd.files
+fi
 
 # Python site-packages path varies by version
 : > python-libguestfs.files
