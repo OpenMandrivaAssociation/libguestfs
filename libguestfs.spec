@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	22
+Release:	23
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -292,6 +292,11 @@ fi
 if [ -e %{buildroot}%{_prefix}/lib/udev/rules.d/99-guestfs-serial.rules ]; then
 	echo "%{_prefix}/lib/udev/rules.d/99-guestfs-serial.rules" >> guestfsd.files
 fi
+# man8 for guestfsd (compressed suffix varies)
+if [ -d %{buildroot}%{_mandir}/man8 ]; then
+	find %{buildroot}%{_mandir}/man8 \( -type f -o -type l \) -name 'guestfsd*' \
+		| sed "s|%{buildroot}||" >> guestfsd.files || :
+fi
 if [ ! -s guestfsd.files ]; then
 	echo "%dir %{_datadir}" > guestfsd.files
 fi
@@ -341,13 +346,22 @@ if [ -d %{buildroot}%{_libdir}/guestfs ]; then
 	echo "%dir %{_libdir}/guestfs" >> guestfs-main-extra.files
 	find %{buildroot}%{_libdir}/guestfs -type f | sed "s|%{buildroot}||" >> guestfs-main-extra.files
 fi
-# bash completion + docs
-if [ -d %{buildroot}%{_datadir}/bash-completion/completions ]; then
+# bash completion (files or symlinks) + docs
+if [ -d %{buildroot}%{_datadir}/bash-completion ]; then
+	echo "%dir %{_datadir}/bash-completion" >> guestfs-main-extra.files
 	echo "%dir %{_datadir}/bash-completion/completions" >> guestfs-main-extra.files
-	find %{buildroot}%{_datadir}/bash-completion/completions -type f | sed "s|%{buildroot}||" >> guestfs-main-extra.files
+	find %{buildroot}%{_datadir}/bash-completion \( -type f -o -type l \) \
+		| sed "s|%{buildroot}||" >> guestfs-main-extra.files || :
 fi
 if [ -d %{buildroot}%{_datadir}/doc/libguestfs ]; then
-	find %{buildroot}%{_datadir}/doc/libguestfs -type f | sed "s|%{buildroot}||" >> guestfs-main-extra.files
+	find %{buildroot}%{_datadir}/doc/libguestfs \( -type f -o -type l \) \
+		| sed "s|%{buildroot}||" >> guestfs-main-extra.files || :
+fi
+# man8 tools only (man1/man5 are static in %files; guestfsd man goes to guestfsd)
+if [ -d %{buildroot}%{_mandir}/man8 ]; then
+	find %{buildroot}%{_mandir}/man8 \( -type f -o -type l \) \
+		! -name 'guestfsd*' \
+		| sed "s|%{buildroot}||" >> guestfs-main-extra.files || :
 fi
 if [ ! -s guestfs-main-extra.files ]; then
 	echo "%dir %{_datadir}" >> guestfs-main-extra.files
