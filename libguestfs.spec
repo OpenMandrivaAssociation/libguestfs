@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	23
+Release:	24
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -292,10 +292,9 @@ fi
 if [ -e %{buildroot}%{_prefix}/lib/udev/rules.d/99-guestfs-serial.rules ]; then
 	echo "%{_prefix}/lib/udev/rules.d/99-guestfs-serial.rules" >> guestfsd.files
 fi
-# man8 for guestfsd (compressed suffix varies)
-if [ -d %{buildroot}%{_mandir}/man8 ]; then
-	find %{buildroot}%{_mandir}/man8 \( -type f -o -type l \) -name 'guestfsd*' \
-		| sed "s|%{buildroot}||" >> guestfsd.files || :
+# man8 for guestfsd — use glob: brp compresses after file lists are built
+if ls %{buildroot}%{_mandir}/man8/guestfsd.8* >/dev/null 2>&1; then
+	echo "%{_mandir}/man8/guestfsd.8*" >> guestfsd.files
 fi
 if [ ! -s guestfsd.files ]; then
 	echo "%dir %{_datadir}" > guestfsd.files
