@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	20
+Release:	21
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -286,11 +286,19 @@ touch appliance/stamp-supermin
 
 # Python site-packages path varies by version
 : > python-libguestfs.files
-find %{buildroot}%{_libdir}/python* -path '*/site-packages/*guestfs*' 2>/dev/null | sed "s|%{buildroot}||" >> python-libguestfs.files || :
-find %{buildroot}%{_libdir}/python* -path '*/site-packages/libguestfsmod*' 2>/dev/null | sed "s|%{buildroot}||" >> python-libguestfs.files || :
+# After remove_libtool_files, .la is gone — never list it
+find %{buildroot}%{_libdir}/python* \( -name 'guestfs.py' -o -name 'libguestfsmod*.so' -o -name 'guestfs*.pyc' -o -path '*/__pycache__/guestfs*' \) 2>/dev/null \
+	| sed "s|%{buildroot}||" >> python-libguestfs.files || :
+# dirs
+find %{buildroot}%{_libdir}/python* -type d -path '*/site-packages/__pycache__' 2>/dev/null | while read d; do
+	[ -n "$(ls -A "$d"/guestfs* 2>/dev/null)" ] && echo "%dir ${d#%{buildroot}}"
+done >> python-libguestfs.files || :
+sort -u -o python-libguestfs.files python-libguestfs.files
 if [ ! -s python-libguestfs.files ]; then
 	echo "%dir %{_datadir}" > python-libguestfs.files
 fi
+# Also drop any .la that slipped in
+sed -i '/\.la$/d' python-libguestfs.files
 
 # lua path varies by version
 : > lua-libguestfs.files
@@ -332,5 +340,6 @@ fi
 if [ ! -s guestfs-main-extra.files ]; then
 	echo "%dir %{_datadir}" >> guestfs-main-extra.files
 fi
+sed -i '/\.la$/d' guestfs-main-extra.files 2>/dev/null || :
 sort -u -o guestfs-main-extra.files guestfs-main-extra.files
 
