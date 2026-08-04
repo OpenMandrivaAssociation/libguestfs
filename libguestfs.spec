@@ -12,7 +12,7 @@
 Summary:	Library and tools for accessing virtual machine disk images
 Name:		libguestfs
 Version:	1.48.1
-Release:	19
+Release:	20
 Source0:	https://download.libguestfs.org/%(echo %{version}|cut -d. -f1-2)-stable/libguestfs-%{version}.tar.gz
 Source1:	libguestfs.rpmlintrc
 Group:		System/Libraries
@@ -189,10 +189,7 @@ Requires:	%{libname} = %{EVRD}
 %description -n python-libguestfs
 Python bindings for libguestfs
 
-%files -n python-libguestfs
-%{_libdir}/python3.9/site-packages/__pycache__/guestfs.*.pyc
-%{_libdir}/python3.9/site-packages/guestfs.py
-%{_libdir}/python3.9/site-packages/libguestfsmod.*.so
+%files -n python-libguestfs -f python-libguestfs.files
 
 #---------------------------------------------------------------------------
 
@@ -286,6 +283,14 @@ touch appliance/stamp-supermin
 %install
 %make_install
 %find_lang libguestfs --all-name --with-man
+
+# Python site-packages path varies by version
+: > python-libguestfs.files
+find %{buildroot}%{_libdir}/python* -path '*/site-packages/*guestfs*' 2>/dev/null | sed "s|%{buildroot}||" >> python-libguestfs.files || :
+find %{buildroot}%{_libdir}/python* -path '*/site-packages/libguestfsmod*' 2>/dev/null | sed "s|%{buildroot}||" >> python-libguestfs.files || :
+if [ ! -s python-libguestfs.files ]; then
+	echo "%dir %{_datadir}" > python-libguestfs.files
+fi
 
 # lua path varies by version
 : > lua-libguestfs.files
