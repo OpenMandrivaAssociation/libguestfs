@@ -1,5 +1,5 @@
-%define libname %mklibname guestfs 0
-%define glibname %mklibname guestfs-gobject-1.0 0
+%define libname %mklibname guestfs
+%define glibname %mklibname guestfs-gobject-1.0
 %define devname %mklibname -d guestfs
 %define gdevname %mklibname -d guestfs-gobject-1.0
 
